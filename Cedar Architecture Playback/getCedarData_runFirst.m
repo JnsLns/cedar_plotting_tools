@@ -135,7 +135,7 @@ end
 disp('Processing input data. This might take a (long) while...');
 
 % Load and process cedar data
-nodes = cedarread(nodesPaths,nodeFiles,nodeNames,removeFramesSharingTimestamp);
+nodes = cedarread(nodePaths,nodeFiles,nodeNames,removeFramesSharingTimestamp);
 fields1d = cedarread(fieldPaths1d,fieldFiles1d,fieldNames1d,removeFramesSharingTimestamp);
 fields2d = cedarread(fieldPaths2d,fieldFiles2d,fieldNames2d,removeFramesSharingTimestamp);
 
