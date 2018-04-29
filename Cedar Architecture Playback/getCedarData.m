@@ -9,9 +9,9 @@
 % the list below (first section after settings) and then gather and reshape
 % the data from those files (second section after setting).
 
-% Requires obliqueView (available on Matlab central) and cedarread (should
-% be packaged with this file).
-
+% The variables containing the preprocessed data, that is, 'nodes',
+% 'fields1d', and 'fields2d', should then be saved in a mat file an loaded
+% in the function archAnim to be animated.
 
 % SETTINGS ---------------------------------------------------------------
 
