@@ -1,8 +1,19 @@
 function archAnim
 
 % load data
-%load('H:\disptmp\preprocessedData_dtrOnly_2ndtry.mat','nodes','fields1d','fields2d')
-load('H:\disptmp\preprocessedData_fullPairB_2ndtry.mat','nodes','fields1d','fields2d')
+load('H:\disptmp\preprocessedData_dtrOnly_2ndtry.mat','nodes','fields1d','fields2d')
+%load('H:\disptmp\preprocessedData_fullPairB_2ndtry.mat','nodes','fields1d','fields2d')
+
+% ---- load architecture image (background)
+
+%archImg = imread('H:\Disputation\cedar arch for disp temp 25 04\matlab stuff\architectureFINAL_dtrOnly_forVideo_deutsch.bmp');
+%archImg = imread('S:\Disputation\cedar arch for disp temp 25 04\matlab stuff\architectureFINAL_fullPairB_forVideo_deutsch.bmp');
+%archImg = imread('S:\Disputation\Bilder\architectureFINAL_dtrOnly_forVideo_deutsch_surf.bmp');
+%archImg = imread('h:\dispTmp\Bilder\architectureFINAL_dtrOnly_forVideo_deutsch_surf.bmp');
+archImg = imread('h:\dispTmp\Bilder\architectureFINAL_fullPairB_forVideo_deutsch_surf.bmp');
+
+
+%% HACK
 
 % --- !!!! Hack to shift field data along color dimension as it is set up in the figure  !!!
 if ~exist('shiftDone','var')
@@ -54,13 +65,6 @@ temporalResolutionMultiplier = 0.4;
 % (1 means equal to simulation speed based on data timestamps)
 playbackSpeed = .25;
 
-% ---- load architecture image (background)
-
-%archImg = imread('H:\Disputation\cedar arch for disp temp 25 04\matlab stuff\architectureFINAL_dtrOnly_forVideo_deutsch.bmp');
-%archImg = imread('S:\Disputation\cedar arch for disp temp 25 04\matlab stuff\architectureFINAL_fullPairB_forVideo_deutsch.bmp');
-%archImg = imread('S:\Disputation\Bilder\architectureFINAL_dtrOnly_forVideo_deutsch_surf.bmp');
-%archImg = imread('h:\dispTmp\Bilder\architectureFINAL_dtrOnly_forVideo_deutsch_surf.bmp');
-archImg = imread('h:\dispTmp\Bilder\architectureFINAL_fullPairB_forVideo_deutsch_surf.bmp');
 
 
 %% define plot properties and positions
