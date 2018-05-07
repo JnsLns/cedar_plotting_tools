@@ -10,7 +10,7 @@
 % the data from those files (second section after setting).
 
 % The variables containing the preprocessed data, that is, 'nodes',
-% 'fields1d', and 'fields2d', should then be saved in a mat file an loaded
+% 'fields1d', and 'fields2d', should then be saved in a mat file and loaded
 % in the function archAnim to be animated.
 
 % SETTINGS ---------------------------------------------------------------
@@ -71,7 +71,7 @@ fieldNames2d = ...
 
 
 % Discard timesteps (may be required when dealing with certain cedar recording
-% quirks :) should not hurt in any case. Discards framaes from the data
+% quirks :) should not hurt in any case. Discards frames from the data
 % that have the same time stamp, keeping only the first one with that stamp.
 removeFramesSharingTimestamp = true;
 

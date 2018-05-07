@@ -1,75 +1,70 @@
+
 function archAnim
 
-% load data
-load('H:\disptmp\preprocessedData_dtrOnly_2ndtry.mat','nodes','fields1d','fields2d')
-%load('H:\disptmp\preprocessedData_fullPairB_2ndtry.mat','nodes','fields1d','fields2d')
+% load data preprocessed using getCedarData
+load('S:\Disputation\recorded simulations\preprocessedData_dtrOnly_2ndtry.mat','nodes','fields1d','fields2d')
 
-% ---- load architecture image (background)
-
-%archImg = imread('H:\Disputation\cedar arch for disp temp 25 04\matlab stuff\architectureFINAL_dtrOnly_forVideo_deutsch.bmp');
-%archImg = imread('S:\Disputation\cedar arch for disp temp 25 04\matlab stuff\architectureFINAL_fullPairB_forVideo_deutsch.bmp');
-%archImg = imread('S:\Disputation\Bilder\architectureFINAL_dtrOnly_forVideo_deutsch_surf.bmp');
-%archImg = imread('h:\dispTmp\Bilder\architectureFINAL_dtrOnly_forVideo_deutsch_surf.bmp');
-archImg = imread('h:\dispTmp\Bilder\architectureFINAL_fullPairB_forVideo_deutsch_surf.bmp');
-
-
-%% HACK
-
-% --- !!!! Hack to shift field data along color dimension as it is set up in the figure  !!!
-if ~exist('shiftDone','var')
-    for i = 1:size(fields1d,2)
-        warning('THERES A TEMPORARY ADJUSTMENT AT WORK THAT SHIFTS 1D DATA ALONG COLOR DIMENSION TO ACCORD TO AXIS IN FIGURE. SHOULD NOT BE USED FOR OTHER THAN THE SL MODEL DATA');
-        fields1d(i).activation = circshift(fields1d(i).activation,13,2);
-    end
-    shiftDone = 1;
-end
-% HACK HACK HACK HACK !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+% specify architecture image that will be in the background of the figure
+% (the generated figure will have the same vert/horz resolution as the
+% supplied image)
+archImg = imread('S:\Disputation\Bilder\architectureFINAL_forVideo_wColoredComponents_deutsch.bmp');
 
 
 %% Graphical settings
 
-% 1 = use images, 2 = use surf
-useImageOrSurf = 2;
-% for surf: factor by which surf data is scaled to reduce peak height (does not apply to color data)
+% NOTE: For surface plots, data supplied to ZData but not data supplied to
+% CData, is translated such that lowest value in the field at each time
+% step equals 0, to keep surf position static along the Z-Axis.
+
+% for surface plots: factor by which surf data is scaled to reduce
+% peak height (does not apply to color data)
 scaleSurfData = 0.2;
-% for image: add contour lines to image maps to show suprathreshold?
+
+% for image plots: add contour lines to image maps indicating suprathreshold activation?
 addContour = 0;
 contLineWidth = 1.6;
 contLineStyle = ':';
 contColor = 'r';
 
-% color limits for field plots (may alternatively be set for each field individually below)
+% color limits for field plots (may alternatively be set for each field
+% individually below); applies to both auf and image plots
 colorLimits = [-10, 5];
 
-% node non-activcation color
+% Node settings
+
+% node non-activation color
 nodeFaceColor = [.95 .95 .95 .85];
 % range of node activation
 nodeActLim = [-5 5];
-% generate node base dots?
+% generate node base dots? (if disabled, only the changing activation overlay will be visible)
 nodeBaseDots = 1;
-baseDotScaleFactor = 1.25;
-% node rings that indicate activation > 0
+baseDotScaleFactor = 1.25; % modify base dot size
+% show node rings that indicate activation > 0 (should wok, but has been replaced by
+% color/opactiy change)
 nodeRingColorEqualToBase = 0; % activation ring same color as base node or same for all nodes (then set below)
 nodeRingColor = 'none'; % use 'none' to hide
 nodeRingWidth = 1.6;
 nodeRingScaleFactor = 1.5;
-% darker colors for inactive nodes
+% darker colors for inactive nodes (RGB value that is subtracted from each channel)
 darkenBy = 50;
 
+% Temporal resolution / playback speed
+
 % Reduce temporal resolution if animation does not run smoothly
-% (reduces number of frames displayed per time below that possible based on data;
-% it does not affect playback speed, except due to performance issues)
+% (reduces number of frames displayed per time below that in the raw data;
+% does not affect playback speed, except due to performance issues)
 temporalResolutionMultiplier = 0.4;
 % Multiplier for playback speed relative to original simulation speed
 % (1 means equal to simulation speed based on data timestamps)
 playbackSpeed = .25;
 
 
-
-%% define plot properties and positions
+%% define plot properties and positions for each visualized element
 
 % 2D fields
+% note: due the use of obliqueView, XLim, YLim, and ZLim are best kept at
+% [-1.7227,51.3020], [0.1157,39.8843], [-8.8026,17.7098], any adjustments
+% tend to be troublesome...
 
 % name           visible        units          position                                     xlim                    ylim                    zlim                    CLim           img (1) or surf (2)
 
@@ -96,10 +91,10 @@ plots1d_properties = ...
 
 % nodes
 
-% name              visible units           position                                            basedotcolor_active
+% name              visible     units           position                                            basedotcolor_active
 
 plots0d_properties = ...
-    {'ref int',         'off',   'centimeters', [7.6251     20.7225    0.6615    0.6615],       [0 204 0];...
+    {'ref int',        'off',   'centimeters', [7.6251     20.7225    0.6615    0.6615],        [0 204 0];...
     'ref cos',         'off',   'centimeters',  [8.9276     20.7225    0.6615    0.6615],       [255 0 0];...
     'tgt int',         'off',   'centimeters',  [12.6885    20.7225    0.6615    0.6615],       [0 204 0];...
     'tgt cos',         'off',   'centimeters',  [13.9429    20.7225    0.6615    0.6615],       [255 0 0];...
@@ -128,7 +123,11 @@ plots0d_properties = ...
     'pro tgt b',       'off',    'centimeters',  [11.7925   14.1919    0.6615    0.6615],       [178 102 255]};
 
 
+
+
 % ...code from here on usually does not need to be adjusted...
+
+
 
 %% Prepare figure etc.
 
@@ -172,10 +171,9 @@ ax_bg.Visible = 'off';
 % extend node properties with column for darker colors showing inactivity
 plots0d_properties(:,6) = cellfun(@(x)  max(x-darkenBy,[0 0 0]) , plots0d_properties(:,5),'uniformoutput',0);
 
-% --- add plots to figure
+
 
 tStep = 1;
-
 
 %% add 2d field axes
 
@@ -296,7 +294,6 @@ if exist('nodes','var')
     end
     
 end
-
 
 
 % Minor stuff
