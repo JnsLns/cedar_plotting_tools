@@ -9,8 +9,8 @@ load('S:\Disputation\recorded simulations\preprocessedData_dtrOnly_2ndtry.mat','
 % supplied image)
 %archImg = imread('S:\Disputation\Bilder\architectureFINAL_dtrOnly_forVideo_deutsch_surf.bmp');
 %archImg = imread('S:\Disputation\Bilder\architectureFINAL_dtrOnly_forVideo_deutsch_surf_small_noAA.bmp');
-archImg = imread('S:\Disputation\Bilder\architectureFINAL_dtrOnly_forVideo_deutsch_surf.bmp');
-%archImg = imread('S:\Disputation\Bilder\architectureFINAL_forVideo_wColoredComponents_deutsch.bmp');
+%archImg = imread('S:\Disputation\Bilder\architectureFINAL_dtrOnly_forVideo_deutsch_surf.bmp');
+archImg = imread('S:\Disputation\Bilder\architectureFINAL_forVideo_wColoredComponents_deutsch.bmp');
 
 posMult_x = 1; %752/1350;
 posMult_y = 1; %536/962;
@@ -498,7 +498,8 @@ while 1
             % remove magnificaton factor for origin
             % note: original size of large input image is 1350 + 962
             % and cropped size (of final video) should be 1348 + 960
-            export_fig(fullfile(baseDir,'tempFrame.bmp'),hFig,'-c[0 0 2 2]','-m0.557','-a3');
+            %export_fig(fullfile(baseDir,'tempFrame.bmp'),hFig,'-c[0 0 2 2]','-m0.557','-a3');
+            export_fig(fullfile(baseDir,'tempFrame.bmp'),hFig,'-c[0 0 2 2]','-a3');
             
             %export_fig(fullfile(baseDir,'tempFrame.bmp'),hFig,'-m1','-nocrop','-a2');
             frame = imread(fullfile(baseDir,'tempFrame.bmp'));

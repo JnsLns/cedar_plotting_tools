@@ -559,7 +559,7 @@ while ~doQuit
         set(cb,'position',[fcntr-cbWidth/2 70 cbWidth cbHeight])
         cb.TickLength = 0.03;
         cb.Label.String = 'Activation';
-        % overlay black order of cb with white axes
+        % overlay black border of cb with white axes
         brdAx = axes('units','pixels');
         brdAx.Position = get(cb,'position');
         brdAx.Color = 'none';
