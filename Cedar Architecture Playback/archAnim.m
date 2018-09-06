@@ -15,19 +15,6 @@ archImg = imread('S:\Disputation\Bilder\architectureFINAL_forVideo_wColoredCompo
 posMult_x = 1; %752/1350;
 posMult_y = 1; %536/962;
 
-%% HACK HACK 
-
-% --- !!!! Hack to shift field data along color dimension as it is set up in the figure  !!!
-if ~exist('shiftDone','var')
-    for i = 1:size(fields1d,2)
-        warning('THERES A TEMPORARY ADJUSTMENT AT WORK THAT SHIFTS 1D DATA ALONG COLOR DIMENSION TO ACCORD TO AXIS IN FIGURE. SHOULD NOT BE USED FOR OTHER THAN THE SL MODEL DATA');
-        fields1d(i).activation = circshift(fields1d(i).activation,13,2);
-    end
-    shiftDone = 1;
-end
-% HACK HACK HACK HACK !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
 %% Graphical settings
 
 % NOTE: For surface plots, data supplied to ZData but not data supplied to
