@@ -2,42 +2,46 @@
 function simdata = cedarread(paths,files,names,remDblFrames)
 % CEDARREAD Read data files recorded in CEDAR.
 % 
-%   simdata = CEDARREAD(paths,files) loads *.csv files containing Cedar simulation
-%   data from the files whose names are supplied as strings in 1d cell array
-%   files and whose paths are supplied in 1d cell array paths. Output is an array
-%   of structs simdata (see below) with each struct therein containing multiple
-%   fields that hold the properties of the simulation data obtained from one of
-%   the files (struct order in the array corresponds to supplied order of file
-%   names). If only one file is loaded, arguments paths and files may be strings.
+%   simdata = CEDARREAD(paths,files) loads *.csv files that contain Cedar simulation
+%   data. File names must be supplied as strings in a 1d cell array
+%   (files), as well as the corresponding paths (paths). If only one file
+%   is imported, both of these arguments may be strings. If the path is 
+%   identical for all files, only one path may be provided which is then
+%   used for all files.
+%
+%   The output (simdata) is an array of structs, with each struct therein
+%   containing multiple data fields. Each data field holds the properties
+%   of the simulation data from one of the imported files (struct order in the
+%   array corresponds to supplied order of file and path names). 
 %
 %   simdata = CEDARREAD(paths,files,names) adds the strings supplied in 1d cell
 %   array names to the output structs' name field (order accords with file list).
-%   May be a string if only one fiel is loaded. May be omitted or be an empty
-%   cell array, in which case file names are used as names.
+%   May be a string if only one field is loaded. If omitted or if it is an empty
+%   cell array, file names are used as names in the data structs.
 %
 %   simdata = CEDARREAD(paths,files,names,remDblFrames) allows to specify
 %   whether simulation frames with identical time stamps are discarded
 %   (remDblFrames == 1) or not (remDblFrames ~= 1). The first frame with that
-%   time stamp is retained. Argument is optional, default is 0.
-%
+%   time stamp is retained. Argument is optional, default is 0. This is
+%   normally not needed but is a fix for an older recording bug in portable
+%   Windows versions of Cedar.
 % 
 %   Output simdata is an array of structs. Each struct in the array contains
 %   all data extracted from one of the input files and has the following fields:
 %
-%      name        String obtained from input argument names (file name if
+%      name        String obtained from input argument names (or file name, if
 %                  argument was not supplied or empty).
 %      activation  Numeric array of variable dimensionality. First dimension
 %                  spans time steps, remaining dimensions represent dimensions
 %                  of the input element.
-%      seconds     Time stamps in seconds.
-%      size        Size along each dimension.
-%      nDims       Number of dimensions of input data (e.g., 3 for a 3D field).
+%      seconds     Simulation time stamps in seconds.
+%      size        Data size along each dimension.
+%      nDims       Number of dimensions of input data, not counting time
+%                  (e.g., 3 for a 3D field).
 %      nFrames     Number of time steps in the final output data.
 %      nDiscarded  Number of time steps deleted from data due to duplicate
 %                  time stamps (NaN if remDblFrames~=1).
-
-
-    
+   
 
 if nargin < 4
     remDblFrames = 0;

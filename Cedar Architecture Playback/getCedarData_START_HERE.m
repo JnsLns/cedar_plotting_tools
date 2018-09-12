@@ -1,4 +1,9 @@
- 
+
+% Requires obliqueview (available on MATLAB Central)
+% Requires cedarread (should be packaged with this file; else, contact me
+% under Jonas.Lins@ini.rub.de)
+
+
 % This script loads files recorded in Cedar (nodes, 1D fields, 2D fields).
 % and stores them in a usable format, namely in structs nodes, fields1d,
 % and fields2d. 
@@ -10,8 +15,8 @@
 % the data from those files (second section after setting).
 
 % The variables containing the preprocessed data, that is, 'nodes',
-% 'fields1d', and 'fields2d', should then be saved in a mat file and loaded
-% in the function archAnim to be animated.
+% 'fields1d', and 'fields2d', should then (manually) be saved in a mat
+% file and loaded in the function archAnim to be animated.
 
 % SETTINGS ---------------------------------------------------------------
 

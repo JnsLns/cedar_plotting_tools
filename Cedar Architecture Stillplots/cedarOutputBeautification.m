@@ -2,27 +2,29 @@
 % Cedar Output Beautification :)
 % Jonas Lins 2017
  
+% Requires export_fig (Available on MATLABcentral.com)
+% Requires cedarread (should be packaged with this file, else contact me)
+
 % _____What's this?_____
 
-% This allows to load recorded time series data recorded in cedar (*.csv),
+% This allows to load time series data recorded in cedar (*.csv),
 % plots it in an interface that allows playing back the evolution over time
 % and selecting time steps for final output. It then generates/exports a more
 % or less publication ready pdf-figure.
  
-% Requires export_fig (Available on MATLABcentral.com)
- 
 % _____HOW TO_____
  
-% Take a look at SETTINGS below. Put in the display names for the fields
-% you will provide as csv files into fieldNames (or other 2d data). At
-% least one field must be specified.
+% Take a look at SETTINGS below. In fieldNames, enter a name for each 2D
+% field you will import; do the same for each node you will import, inputting
+% names into nodeNames; these names will be plotted in the figure. Note that
+% at least one field must be specified.
  
-% Do the same for nodes and nodeNames. (You can leave nodeNames empty, but
-% an empty node plot will still be generated).
+% Do the same for nodes and nodeNames. If you leave nodeNames empty, an
+% empty node plot will still be generated.
  
 % The only other mandatory thing to adjust is assignNodeAxes (most simply,
 % put 1 in there for each node in nodeNames, e.g. [1 1 1] for three nodes).
- 
+
 % Run the script. It will ask you to select the files corresponding to the
 % field/node names you have entered before (title of load dialog specifies
 % which field/node for each file).
@@ -31,15 +33,14 @@
 % interface pops up.
  
 % Select some snapshots ("+Snapshot"). Setting start/end is optional. Press
-% plot. Then export.
+% "plot" and then "export".
 
 % _____NOTES_____
  
-% This was with the heisse Nadel gestrickt and is somewhat messy, sure
-% has bugs, and is not completely versatile.
- 
-% Currently only handles 2D fields and 0D nodes. (Code for 1D should be
-% straightforward though).
+% This was implemented quick and dirty, primarily for my own specific 
+% purposes. It sure has bugs and is not very versatile. For instance, it
+% currently only handles 2D fields and 0D nodes; code for 1D should be
+% straightforward to add, though.
 
 
 
@@ -50,23 +51,17 @@ function cedarOutputBeautification
 % Provide the field names and node names here. 
 % Use sprintf('Blabla\nbla') for multiline names and other formatting.
 fieldNames = ...
-    {'Perceptual', ...
-    'Reference', ...
-    sprintf('Reference\nIoR'),...
-    sprintf('Target\ncandidates'),...
-    sprintf('Target\nresponse'),...
-    sprintf('Relational\nCoS'),...
-    sprintf('Relational\nCoD')};
+    {'Some 2D field', ...
+    sprintf('another\n2D field')};
 nodeNames = ...
-    {'Reference',...
-    'Target',...
-    'Spatial term'};
+    {'Some node', ...
+    'some other node'};
 
 % Which of the nodes named above get their own axes?
 % (elements of this vector correspond to nodeNames in order; using the same
 % numeric value in each element will cause all nodes to be plotted in
 % one axes; introducing more numbers results in a additional node axes.
-assignNodeAxes = [1 1 1];   
+assignNodeAxes = [1 2];   
 
 nodePlotYLims = [-15 15;-15 15]; % Ylimits for node plots; one row per plot (in order defined above)
 colorLimits = [-10, 5]; % color limits for field plots
@@ -108,14 +103,18 @@ vertFieldLabelPosition = .25; % vert distance of left text onset from bottom bor
 % define figure size depending on number plots in it (values 3,3,2.5 are good)
 outFig_widthBase = 5; % baseWidth for margins etc [cm]
 outFig_widthPerSnap = 3.5; % width per snapshot [cm]
-outFig_heightPerSubplot = 2.7; % height per subplot [cm] (one subplot vertically for each node plot, field, and one for time values)
+outFig_heightPerSubplot = 4; % height per subplot [cm] (one subplot vertically for each node plot, field, and one for time values)
 
 % This can be used to increase size of the field plots without changing
 % arrangement of things in the output figure (the value is the proportion
 % of the previous size added to the previous size)
 scaleFactorFieldPlots = 0.25;
 
-% When using export function save not only pdf but also fig (same dir as that chosen for pdf)?
+% activation colorbar. If this overlaps with plots adjust plot positions or
+% simply correct with matlab plot tools.
+showColorBar = false;
+
+% When using export function, save not only pdf but also fig (same dir as that chosen for pdf)?
 exportAlsoSavesFigFile = true;
 
 % Iteration settings (does not need to be touched usually)
@@ -164,56 +163,10 @@ end
 
 disp('Processing input data. This might take a while...');
 
-for curField = 1:nFields
-    % Get field size
-    fid = fopen([fieldPaths{curField} fieldFiles{curField}]);
-    first_line = fgetl(fid);
-    matProps = textscan(first_line ,'%s', 'Delimiter', ',');
-    fields(curField).width = str2double(matProps{1}{3});
-    fields(curField).height = str2double(matProps{1}{4});
-    fclose(fid);
-    % Get timestamps
-    data = readtable([fieldPaths{curField} fieldFiles{curField}]);
-    fields(curField).seconds = str2double(strrep(data{:,1},' s',''));
-    % Get field data and reshape into 3d
-    ftmp = csvread([fieldPaths{curField} fieldFiles{curField}],1,1);
-    fields(curField).activation = reshape(ftmp',fields(curField).width,fields(curField).height,size(ftmp,1));
-    % Remove frames with identical time stamps
-    if removeFramesSharingTimestamp
-        disp(['Discarding ' num2str(sum(diff(fields(curField).seconds)==0)) ' frames with identical time stamps for field ' fieldNames{curField} '.']);
-        fields(curField).activation = fields(curField).activation(:,:,logical([diff(fields(curField).seconds);1]));
-        fields(curField).seconds = fields(curField).seconds(logical([diff(fields(curField).seconds);1]));
-    end
-    % Get number of frames for this field
-    fields(curField).nFrames = size(fields(curField).activation,3);
-    % Field name
-    fields(curField).name = fieldNames{curField};
-end
+fields = cedarread(fieldPaths,fieldFiles,fieldNames,removeFramesSharingTimestamp);
+nodes = cedarread(nodePaths,nodeFiles,nodeNames,removeFramesSharingTimestamp);
 for curNode = 1:nNodes
-    % Get field size
-    fid = fopen([nodePaths{curNode} nodeFiles{curNode}]);
-    first_line = fgetl(fid);
-    matProps = textscan(first_line ,'%s', 'Delimiter', ',');
-    nodes(curNode).width = str2double(matProps{1}{3});
-    nodes(curNode).height = str2double(matProps{1}{4});
-    fclose(fid);
-    % Get timestamps
-    data = readtable([nodePaths{curNode} nodeFiles{curNode}]);
-    nodes(curNode).seconds = str2double(strrep(data{:,1},' s',''));
-    % Get node data
-    nodes(curNode).activation = csvread([nodePaths{curNode} nodeFiles{curNode}],1,1);
-    % Remove frames with identical time stamps
-    if removeFramesSharingTimestamp
-        disp(['Discarding ' num2str(sum(diff(nodes(curNode).seconds)==0)) ' frames with identical time stamps for node ' nodeNames{curNode} '.']);
-        nodes(curNode).activation = nodes(curNode).activation(logical([diff(nodes(curNode).seconds);1]));
-        nodes(curNode).seconds = nodes(curNode).seconds(logical([diff(nodes(curNode).seconds);1]));
-    end
-    % Get number of frames for this node
-    nodes(curNode).nFrames = numel(nodes(curNode).activation);
-    % Assign axes
     nodes(curNode).axNum = assignNodeAxes(curNode);
-    % Node name
-    nodes(curNode).name = nodeNames{curNode};
 end
 
 % if no nodes specified
@@ -221,8 +174,7 @@ if isempty(nodeNames)
     nNodes = 1;
     assignNodeAxes = 1;
     nodes(1).name = 'Dummy';
-    nodes(1).width = 1;
-    nodes(1).height = 1;
+    nodes(1).size = [1 1];    
     nodes(1).seconds = 0;
     nodes(1).nFrames = 1;
     nodes(1).axNum = 1;
@@ -283,7 +235,7 @@ addlistener(hTimeSlider, 'Value','PostSet',@sliderCallback);
 
 fieldPlots_sel = [];
 for curField = 1:nFields
-    fieldPlots_sel(curField) = imagesc(zeros(fields(curField).width,fields(curField).height),'parent',fieldAxes_sel(curField));
+    fieldPlots_sel(curField) = imagesc(zeros(fields(curField).size(2),fields(curField).size(1)),'parent',fieldAxes_sel(curField));
     set(get(fieldAxes_sel(curField),'title'),'String',strrep(fields(curField).name,sprintf('\n'),' '),'FontSize',10,'FontWeight','normal');
 end
 
@@ -352,8 +304,8 @@ while ~doQuit
         % Update fields
         for curField = 1:nFields
             % find time stamp closest to current plotTime
-            [~,mind] = min(abs(fields(curField).seconds-plotTime));
-            set(fieldPlots_sel(curField),'CData',fields(curField).activation(:,:,mind));
+            [~,mind] = min(abs(fields(curField).seconds-plotTime));            
+            set(fieldPlots_sel(curField),'CData',squeeze(fields(curField).activation(mind,:,:)));            
         end
         
         % Draw line marking current time in each node plot
@@ -412,7 +364,7 @@ while ~doQuit
         fieldPlots = [];
         for curField = 1:nFields
             for curSnap = 1:nSnaps
-                fieldPlots(curField,curSnap) = imagesc(zeros(fields(curField).width,fields(curField).height),'parent',fieldAxes(curField,curSnap));
+                fieldPlots(curField,curSnap) = imagesc(zeros(fields(curField).size(2),fields(curField).size(1)),'parent',fieldAxes(curField,curSnap));
             end
         end
         
@@ -460,7 +412,7 @@ while ~doQuit
             for curField = 1:nFields
                 % find time stamp closest to current step
                 [~,mind] = min(abs(fields(curField).seconds-plotTime));
-                set(fieldPlots(curField,curSnap),'CData',fields(curField).activation(:,:,mind));
+                set(fieldPlots(curField,curSnap),'CData',squeeze(fields(curField).activation(mind,:,:)));
             end
             % Draw line in each node plot (first delete if already exists)
             for curNodeAx = 1:nNodeAxes
@@ -551,23 +503,27 @@ while ~doQuit
         
         % Add color bar
         
-        fs = getpixelposition(hSnapFig);
-        fcntr = fs(3)/2;
-        cb = colorbar(fieldAxes(end,1),'horiz');
-        cbHeight = 25; cbWidth = 200;
-        set(cb,'units','pixels');
-        set(cb,'position',[fcntr-cbWidth/2 70 cbWidth cbHeight])
-        cb.TickLength = 0.03;
-        cb.Label.String = 'Activation';
-        % overlay black border of cb with white axes
-        brdAx = axes('units','pixels');
-        brdAx.Position = get(cb,'position');
-        brdAx.Color = 'none';
-        brdAx.XTick = []; brdAx.YTick = [];
-        brdAx.Box = 'on';
-        brdAx.XAxis.Color = 'w';
-        brdAx.YAxis.Color = 'w';
-        uistack(brdAx,'top')
+        if showColorBar
+            
+            fs = getpixelposition(hSnapFig);
+            fcntr = fs(3)/2;
+            cb = colorbar(fieldAxes(end,1),'horiz');
+            cbHeight = 25; cbWidth = 200;
+            set(cb,'units','pixels');
+            set(cb,'position',[fcntr-cbWidth/2 70 cbWidth cbHeight])
+            cb.TickLength = 0.03;
+            cb.Label.String = 'Activation';
+            % overlay black border of cb with white axes
+            brdAx = axes('units','pixels');
+            brdAx.Position = get(cb,'position');
+            brdAx.Color = 'none';
+            brdAx.XTick = []; brdAx.YTick = [];
+            brdAx.Box = 'on';
+            brdAx.XAxis.Color = 'w';
+            brdAx.YAxis.Color = 'w';
+            uistack(brdAx,'top')
+        
+        end
         
         % Change fontsize and font of all text
         

@@ -1,19 +1,18 @@
 
+% Before using this look at getCedarData_START_HERE.m
+
 function archAnim
 
 % load data preprocessed using getCedarData
-load('S:\Disputation\recorded simulations\preprocessedData_dtrOnly_2ndtry.mat','nodes','fields1d','fields2d')
+load('S:\blablubb\preprocessedData.mat','nodes','fields1d','fields2d')
 
 % specify architecture image that will be in the background of the figure
 % (the generated figure will have the same vert/horz resolution as the
 % supplied image)
-%archImg = imread('S:\Disputation\Bilder\architectureFINAL_dtrOnly_forVideo_deutsch_surf.bmp');
-%archImg = imread('S:\Disputation\Bilder\architectureFINAL_dtrOnly_forVideo_deutsch_surf_small_noAA.bmp');
-%archImg = imread('S:\Disputation\Bilder\architectureFINAL_dtrOnly_forVideo_deutsch_surf.bmp');
-archImg = imread('S:\Disputation\Bilder\architectureFINAL_forVideo_wColoredComponents_deutsch.bmp');
+archImg = imread('S:\blablubb.bmp');
 
-posMult_x = 1; %752/1350;
-posMult_y = 1; %536/962;
+posMult_x = 1;
+posMult_y = 1;
 
 %% Graphical settings
 
