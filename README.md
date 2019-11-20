@@ -1,4 +1,4 @@
-# Tools for generating figures and videos from time series data exported from CEDAR
+# Tools for generating figures and videos from CEDAR time series data
 
 Requires `obliqueview` by John Barber, available on MATLAB Central.
 Requires `export_fig` by Yair Altman, available on MATLAB Central.
