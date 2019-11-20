@@ -1,15 +1,17 @@
 
 % Before using this look at getCedarData_START_HERE.m
+%
+% After doing what is indicated there, adjust the settings below and run.
 
 function archAnim
 
 % load data preprocessed using getCedarData
-load('S:\blablubb\preprocessedData.mat','nodes','fields1d','fields2d')
+load('S:\foo\preprocessedData.mat','nodes','fields1d','fields2d')
 
 % specify architecture image that will be in the background of the figure
 % (the generated figure will have the same vert/horz resolution as the
 % supplied image)
-archImg = imread('S:\blablubb.bmp');
+archImg = imread('S:\someImage.bmp');
 
 posMult_x = 1;
 posMult_y = 1;
@@ -18,25 +20,27 @@ posMult_y = 1;
 
 % NOTE: For surface plots, data supplied to ZData but not data supplied to
 % CData, is translated such that lowest value in the field at each time
-% step equals 0, to keep surf position static along the Z-Axis.
+% step equals 0, to keep surface plot position static along the Z-Axis.
 
 % for surface plots: factor by which surf data is scaled to reduce
-% peak height (does not apply to color data)
+% peak height in order to prevent overlapping graphics (does not apply to
+% color data) 
 scaleSurfData = 0.2;
 
-% for image plots: add contour lines to image maps indicating suprathreshold activation?
+% for image plots: add contour lines to image maps indicating
+% suprathreshold activation?
 addContour = 0;
 contLineWidth = 1.6;
 contLineStyle = ':';
 contColor = 'r';
 
 % for surf plots
-surfEdgeAlpha = .5; %.3
+surfEdgeAlpha = .5; 
 surfEdgeColor = [.8 .8 .8];
-surfEdgeWidth = 0.5; %.3
+surfEdgeWidth = 0.5; 
 
 % color limits for field plots (may alternatively be set for each field
-% individually below); applies to both auf and image plots
+% individually below); applies to both surf and image plots
 colorLimits = [-10, 5];
 
 % Node settings
@@ -61,7 +65,7 @@ darkenBy = 50;
 
 % Reduce temporal resolution if animation does not run smoothly
 % (reduces number of frames displayed per time below that in the raw data;
-% does not affect playback speed, except due to performance issues)
+% does not affect playback speed, except possibly due to performance issues)
 temporalResolutionMultiplier = 0.4;
 % Multiplier for playback speed relative to original simulation speed
 % (1 means equal to simulation speed based on data timestamps)
@@ -71,13 +75,11 @@ playbackSpeed = .25;
 doCaptureVideos = 1;
 captureNth = 1;     % capture every nth time step (starting at 1)
 videoNumber = 1;    % number for first video (successive videos are named with increasing numbers)
-%startStep = 1;      % time step at which simulation starts
-%endStep = inf;    % time step at which simulation ends
-baseDir = 'D:\videoTemp\arch\'; % directory where videos are written
+baseDir = 'D:\videosTemp\'; % directory where videos are written
+newVideoTimesteps = []; % Note: Fill in here timestep numbers at which a
+                        % new video file should be started; leave empty []
+                        % if none. Must be a vector.
 
-% TODO TODO TODO
-% Note: to start and capture a new video at a given time step, set at that timestep.
-startNewVideo = 1; 
 
 %% define plot properties and positions for each visualized element
 
@@ -91,18 +93,12 @@ startNewVideo = 1;
 plots2d_properties = ...
     {'perc green',  'off',      'centimeters', [24.0540   16.8378   11.1250    4.8108],    [-1.7227,51.3020],      [0.1157,39.8843],       [-8.8026,17.7098],      colorLimits    1;...
     'perc red',    'off',      'centimeters',  [24.0540   14.8894   11.1250    4.8108],    [-1.7227,51.3020],      [0.1157,39.8843],       [-8.8026,17.7098],      colorLimits    1;...
-    'perc blue',   'off',      'centimeters',  [24.0540   12.9411   11.1250    4.8108],    [-1.7227,51.3020],      [0.1157,39.8843],       [-8.8026,17.7098],      colorLimits    1;...
-    'ref',         'off',      'centimeters',  [12.4961    8.0100   11.1250    4.8108],    [-1.7227,51.3020],      [0.1157,39.8843],       [-8.8026,17.7098],      colorLimits    2;...
-    'ref ior',     'off',      'centimeters',  [12.4961    5.2799   11.1250    4.8108],    [-1.7227,51.3020],      [0.1157,39.8843],       [-8.8026,17.7098],      colorLimits    2;...
-    'tgt cand',    'off',      'centimeters',  [24.0540    8.0100   11.1250    4.8108],    [-1.7227,51.3020],      [0.1157,39.8843],       [-8.8026,17.7098],      colorLimits    2;...
-    'tgt resp',    'off',      'centimeters',  [24.0540    5.2799   11.1250    4.8108],    [-1.7227,51.3020],      [0.1157,39.8843],       [-8.8026,17.7098],      colorLimits    2;...
-    'rel cos',     'off',      'centimeters',  [13.9754    1.4553   11.1250    4.8108],    [-1.7227,51.3020],      [0.1157,39.8843],       [-8.8026,17.7098],      colorLimits    2;...
-    'rel cod',     'off',      'centimeters',  [22.6108    1.4553   11.1250    4.8108],    [-1.7227,51.3020],      [0.1157,39.8843],       [-8.8026,17.7098],      colorLimits    2};
+    'perc blue',   'off',      'centimeters',  [24.0540   12.9411   11.1250    4.8108],    [-1.7227,51.3020],      [0.1157,39.8843],       [-8.8026,17.7098],      colorLimits    1};
 
 
 % 1D fields
 
-% name           visible      units           position                              xlim        XDir        YDir    XTick           YTick
+% name           visible      units           position                              xlim        XDir        YDir      XTick           YTick
 
 plots1d_properties = ...
     {'col int',     'on',     'centimeters',  [16.4770 13.4245 1.7199 6.3743],      [-6,3],     'reverse',  'normal', [-6 -4 -2 0 2],   [];...
@@ -111,40 +107,21 @@ plots1d_properties = ...
 
 % nodes
 
-% name              visible     units           position                                            basedotcolor_active
+% name              visible     units           position                                         basedotcolor_active
 
 plots0d_properties = ...
     {'ref int',        'off',   'centimeters', [7.6251     20.7225    0.6615    0.6615],        [0 204 0];...
     'ref cos',         'off',   'centimeters',  [8.9276     20.7225    0.6615    0.6615],       [255 0 0];...
     'tgt int',         'off',   'centimeters',  [12.6885    20.7225    0.6615    0.6615],       [0 204 0];...
-    'tgt cos',         'off',   'centimeters',  [13.9429    20.7225    0.6615    0.6615],       [255 0 0];...
-    'tgt pre',         'off',   'centimeters',  [10.8243    21.4983    0.6615    0.6615],       [160 160 160];...
-    'spt int',         'off',   'centimeters',  [2.5497     20.7225    0.6615    0.6615],       [0 204 0];...
-    'spt cos',         'off',   'centimeters',  [3.8643     20.7225    0.6615    0.6615],       [255 0 0];...
-    'mem spt a',       'off',   'centimeters',  [0.3368     8.5789     0.6615    0.6615],       [51 153 255];...
-    'mem spt b',       'off',   'centimeters',  [0.3368     6.4080     0.6615    0.6615],       [51 153 255];...
-    'mem spt l',       'off',   'centimeters',  [0.3368     4.2215     0.6615    0.6615],       [51 153 255];...
-    'mem spt r',       'off',   'centimeters',  [0.3368     2.0530     0.6615    0.6615],       [51 153 255];...
-    'pro spt a',       'off',   'centimeters',  [1.6417     8.5789     0.6615    0.6615],       [178 102 255];...
-    'pro spt b',       'off',   'centimeters',  [1.6417     6.4080     0.6615    0.6615],       [178 102 255];...
-    'pro spt l',       'off',   'centimeters',  [1.6417     4.2239     0.6615    0.6615],       [178 102 255];...
-    'pro spt r',       'off',   'centimeters',  [1.6417     2.0530     0.6615    0.6615],       [178 102 255];...
-    'mem ref r',       'off',   'centimeters',  [5.4654     16.1823    0.6615    0.6615],       [51 153 255];...
-    'mem ref g',       'off',   'centimeters',  [5.4654     18.1908    0.6615    0.6615],       [51 153 255];...
-    'mem ref b',       'off',   'centimeters',  [5.4654     14.1919    0.6615    0.6615]        [51 153 255];...
-    'mem tgt r',       'off',   'centimeters',  [10.5519    16.1823    0.6615    0.6615],       [51 153 255];...
-    'mem tgt g',       'off',   'centimeters',  [10.5519    18.1728    0.6615    0.6615],       [51 153 255];...
-    'mem tgt b',       'off',   'centimeters',  [10.5519    14.1919    0.6615    0.6615],       [51 153 255];...
-    'pro ref r',       'off',   'centimeters',  [6.7171     16.1823    0.6615    0.6615],       [178 102 255];...
-    'pro ref g',       'off',   'centimeters',  [6.7171    18.1908    0.6615    0.6615],       [178 102 255];...
-    'pro ref b',       'off',   'centimeters',  [6.7171     14.1919    0.6615    0.6615],       [178 102 255];...
-    'pro tgt r',       'off',   'centimeters',  [11.7925    16.1823    0.6615    0.6615],       [178 102 255];...
-    'pro tgt g',       'off',   'centimeters',  [11.7925    18.1728    0.6615    0.6615],       [178 102 255];...
-    'pro tgt b',       'off',    'centimeters',  [11.7925   14.1919    0.6615    0.6615],       [178 102 255]};
+    'tgt cos',         'off',   'centimeters',  [13.9429    20.7225    0.6615    0.6615],       [255 0 0]};
 
 
-% ...code from here on usually does not need to be adjusted...
 
+
+
+%% ...code from here on usually does not need to be adjusted...
+
+startNewVideo = 1; 
 
 %% multiply position vectors
 plots0d_properties(:,4) = cellfun(@(pos) [pos(1)*posMult_x,pos(2)*posMult_y,pos(3)*posMult_x,pos(4)*posMult_y] , plots0d_properties(:,4), 'uniformoutput', 0);
@@ -428,11 +405,9 @@ while 1
                 nodes(curNode).ax.Children.Visible = 'off';
             end
             
-            if nodes(curNode).activation(useStep) > 0
-                %nodes(curNode).baseDot.FaceColor(4) = 1;
+            if nodes(curNode).activation(useStep) > 0                
                 nodes(curNode).baseDot.FaceColor = [plots0d_properties{curNode,5}/255,1];
-            elseif nodes(curNode).activation(useStep) <= 0
-                %nodes(curNode).baseDot.FaceColor(4) = 0.1;
+            elseif nodes(curNode).activation(useStep) <= 0                
                 nodes(curNode).baseDot.FaceColor = [plots0d_properties{curNode,6}/255,0.25];
             end
             
@@ -451,8 +426,7 @@ while 1
         % increment counter or roll around
         if curStep < finalDisplayFrameNumber
             curStep = curStep+1;
-        else
-            %pause(0.1)
+        else            
             runButton_callback(hRunButton);
             hRunButton.Value = 0;
             curStep = 1;
@@ -464,36 +438,43 @@ while 1
     
     % Capture video frame
     if doCaptureVideos && hRunButton.Value == 1        
+        
+        if ~isempty(newVideoTimesteps) && any(curStep == newVideoTimesteps)
+            startNewVideo = 1;
+        end
+        
         % close current video object
         if startNewVideo || curStep == totalFrames
-            try; close(vidObj); end
+            try
+                close(vidObj);
+            end
         end
+        
         % make new video object
         if startNewVideo
+            
             startNewVideo = 0;            
+            
             % make video object
             vidObj = VideoWriter([baseDir,'\',['video_',num2str(videoNumber)]],'Uncompressed avi');
             vidObj.FrameRate = 20;
             open(vidObj);
             videoNumber = videoNumber+1;
+            
         end
+        
         % Make temporary bitmap and add as video frame
         if mod(curStep+1,captureNth)==0 || curStep == 1                                   
-            %export_fig(hFig,fullfile(baseDir,'tempFrame.bmp'));
-            
-            % remove magnificaton factor for origin
-            % note: original size of large input image is 1350 + 962
-            % and cropped size (of final video) should be 1348 + 960
-            %export_fig(fullfile(baseDir,'tempFrame.bmp'),hFig,'-c[0 0 2 2]','-m0.557','-a3');
-            export_fig(fullfile(baseDir,'tempFrame.bmp'),hFig,'-c[0 0 2 2]','-a3');
-            
-            %export_fig(fullfile(baseDir,'tempFrame.bmp'),hFig,'-m1','-nocrop','-a2');
+                                   
+            export_fig(fullfile(baseDir,'tempFrame.bmp'),hFig,'-c[0 0 2 2]','-a3');           
             frame = imread(fullfile(baseDir,'tempFrame.bmp'));
+            
             try
                 writeVideo(vidObj,frame);             
             catch
-               disp('Warning: Frame skipped. (size off?)'); 
+               disp('Warning: Frame skipped. (output size off?)'); 
             end            
+            
         end       
     end
     

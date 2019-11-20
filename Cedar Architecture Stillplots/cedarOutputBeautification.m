@@ -2,7 +2,7 @@
 % Cedar Output Beautification :)
 % Jonas Lins 2017
  
-% Requires export_fig (Available on MATLABcentral.com)
+% Requires export_fig by Yair Altman (Available on MATLABcentral.com)
 % Requires cedarread (should be packaged with this file, else contact me)
 
 % _____What's this?_____
