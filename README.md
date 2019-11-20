@@ -1,4 +1,4 @@
-# Plotting tools to generate figures and videos of dynamic neural fields from CEDAR output
+# Tools to generate figures and videos of dynamic neural fields from CEDAR output
 
 Requires `obliqueview` by John Barber, available on MATLAB Central.
 Requires `export_fig` by Yair Altman, available on MATLAB Central.
