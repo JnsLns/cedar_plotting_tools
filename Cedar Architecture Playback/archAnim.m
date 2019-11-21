@@ -76,7 +76,7 @@ doCaptureVideos = 1;
 captureNth = 1;     % capture every nth time step (starting at 1)
 videoNumber = 1;    % number for first video (successive videos are named with increasing numbers)
 baseDir = 'D:\videosTemp\'; % directory where videos are written
-newVideoTimesteps = []; % Note: Fill in here timestep numbers at which a
+newVideoTimesteps = []; % Fill in here timestep numbers at which a
                         % new video file should be started; leave empty []
                         % if none. Must be a vector.
 
